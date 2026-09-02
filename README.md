@@ -95,6 +95,17 @@ unmodified, so it can be called repeatedly with different options:
 `Delay`/`SetDelay`/`GetFrame(s)` and invalid GIF data passed to `Open` or
 `AddFrame` return descriptive errors.
 
+## Example
+
+[example/](example/) contains a small CLI that optimizes a GIF and writes it
+to stdout, and [Dockerfile.example](Dockerfile.example) builds it into an
+image: the binding is pulled from the git repository at build time, while
+the example application is COPY'd from the build context — a local checkout
+of this repo is not needed:
+
+    docker build -f Dockerfile.example -t gifsicle-go-example .
+    docker run gifsicle-go-example input.gif > output.gif
+
 ## Verification
 
 The binding aims for byte-identical output with gifsicle 1.96. It is

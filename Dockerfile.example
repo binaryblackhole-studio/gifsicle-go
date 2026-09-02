@@ -1,0 +1,63 @@
+# Builds the example application into a runnable image.
+#
+# The binding is pulled from the git repository (REPO_URL) at build
+# time — a local checkout of the repo is not needed — and the upstream
+# gifsicle sources are fetched by `make prepare` inside the container
+# (pinned to release tag v1.96 by the repo's Makefile). The example
+# application itself is COPY'd from the build context:
+#
+#   docker build -f Dockerfile.example -t gifsicle-go-example .
+#
+#   docker run gifsicle-go-example input.gif > output.gif
+#   docker run gifsicle-go-example -O2 input.gif > output.gif
+#   cat input.gif | docker run -i gifsicle-go-example - > output.gif
+#
+# REPO_URL/REPO_REF can be overridden to build from a fork or another
+# branch, e.g. --build-arg REPO_REF=mybranch.
+#
+# Docker caches the `git clone` layer, so after new commits land on the
+# repository, rebuild with --no-cache, or pass any new value to
+# --build-arg CACHEBUST=... to re-clone only.
+
+FROM golang:1.26-alpine AS build
+
+ARG REPO_URL=https://github.com/binaryblackhole-studio/gifsicle-go.git
+ARG REPO_REF=main
+# Change this value to invalidate the cached `git clone` layer.
+ARG CACHEBUST=0
+
+# gcc/musl-dev: cgo; git: fetches this repo and upstream gifsicle.
+# The binary and library are linked against musl, so the runtime stage
+# must also be alpine.
+RUN apk add --no-cache git gcc musl-dev make ca-certificates
+
+# Some egress proxies reject git protocol v2 POSTs with a 401; protocol
+# v0 works everywhere.
+RUN git config --system protocol.version 0
+
+WORKDIR /src
+# Referencing CACHEBUST makes its value part of this layer's cache key.
+RUN echo "cachebust=${CACHEBUST}" >/dev/null \
+    && git clone --branch "${REPO_REF}" "${REPO_URL}" .
+
+# Fetches upstream gifsicle at its pinned release tag and compiles
+# build/libgifsicle-go.so (see the repository's Makefile).
+RUN make prepare lib
+
+# The example application comes from the build context.
+COPY example ./example
+
+RUN go build -trimpath -ldflags="-s -w" -o /out/example ./example
+
+
+FROM alpine:3.20
+
+COPY --from=build /src/build/libgifsicle-go.so /usr/local/lib/
+COPY --from=build /out/example /usr/local/bin/example
+COPY --from=build /src/example/input.gif /example/input.gif
+
+WORKDIR /example
+ENV LD_LIBRARY_PATH=/usr/local/lib
+
+ENTRYPOINT ["example"]
+CMD ["input.gif"]
