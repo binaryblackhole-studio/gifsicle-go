@@ -83,6 +83,20 @@ lwarning(const char* landmark, const char* format, ...)
     va_end(ap);
 }
 
+/* gifsicle's error() also lives in support.c. The library's only call
+   sites are the color-transformation subprocess path in xform.c, which
+   the binding does not expose; log it like a warning instead of
+   exiting the process. */
+void
+error(int need_file, const char* format, ...)
+{
+    (void) need_file;
+    va_list ap;
+    va_start(ap, format);
+    log_warning(format, ap);
+    va_end(ap);
+}
+
 Gif_Colormap*
 read_colormap_file(const char* landmark, FILE* f)
 {
