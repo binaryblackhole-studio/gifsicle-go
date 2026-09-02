@@ -15,7 +15,7 @@ this repository.
 
 ## Install
 
-    go get github.com/BinaryBlackhole/gifsicle-go
+    go get github.com/binaryblackhole-studio/gifsicle-go
 
 Because the upstream sources must be fetched and compiled once, prepare the
 shared library before the first `go build` (Go and git, plus a C compiler,

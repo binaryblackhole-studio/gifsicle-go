@@ -2,7 +2,7 @@
 // read, assemble, optimize and write GIFs with the same behavior as the
 // gifsicle command line tool, without spawning an external process.
 //
-// The module path is github.com/BinaryBlackhole/gifsicle-go; the package
+// The module path is github.com/binaryblackhole-studio/gifsicle-go; the package
 // drops the -go suffix, following the usual Go convention (git2go, go-sqlite3).
 package gifsicle
 

@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	gs "github.com/BinaryBlackhole/gifsicle-go"
+	gs "github.com/binaryblackhole-studio/gifsicle-go"
 )
 
 // testPalette returns a palette with n distinguishable colors.
