@@ -1,0 +1,8 @@
+# Upstream checkout and built library (fetched/compiled by `make prepare lib`)
+/build/
+
+# Test and editor artifacts
+*.test
+/smoke/
+/out/
+*.gif.tmp
