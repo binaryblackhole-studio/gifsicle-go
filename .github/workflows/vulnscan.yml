@@ -34,3 +34,7 @@ jobs:
         with:
           go-version-input: stable
           go-package: ./...
+          # The action checks out the repo itself by default, and that
+          # checkout git-cleans the workspace — deleting the gitignored
+          # build/ tree the step above just built. We did the checkout.
+          repo-checkout: false
